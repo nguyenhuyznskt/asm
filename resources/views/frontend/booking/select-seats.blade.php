@@ -4,70 +4,104 @@
 
 @section('content')
 
-<h1 class="text-2xl font-bold mb-3">Chọn ghế - {{ $showtime->movie->title }}</h1>
+    <h1 class="text-2xl font-bold mb-3">Chọn ghế - {{ $showtime->movie->title }}</h1>
 
-<p class="text-sm mb-4 text-slate-300">
-    Rạp: {{ $showtime->room->cinema->name }} – {{ $showtime->room->name }} <br>
-    Suất: {{ $showtime->start_time->format('d/m/Y H:i') }} <br>
-    Giá vé: {{ number_format($showtime->price) }}đ
-</p>
+    <p class="text-sm mb-4 text-slate-300">
+        Rạp: {{ $showtime->room->cinema->name }} – {{ $showtime->room->name }} <br>
+        Suất: {{ $showtime->start_time->format('d/m/Y H:i') }} <br>
+        Giá vé: {{ number_format($showtime->price) }}đ
+    </p>
 
-<div class="bg-slate-900 p-4 rounded-xl mb-6">
+    <div class="bg-slate-900 p-4 rounded-xl mb-6">
 
-    <p class="text-center text-xs text-slate-400 mb-2">Màn hình</p>
-    <div class="h-1 bg-slate-500 mb-4"></div>
+        <p class="text-center text-xs text-slate-400 mb-2">Màn hình</p>
+        <div class="h-1 bg-slate-500 mb-4"></div>
 
-    <form method="POST" action="{{ route('booking.store', $showtime) }}">
-        @csrf
+        <form method="POST" action="{{ route('booking.store', $showtime) }}">
+            @csrf
+            <div class="flex justify-center">
+            <div class="space-y-2">
 
-        <div class="space-y-2">
+                @foreach($showtime->room->seats->groupBy('row') as $row => $seats)
 
-            @foreach($showtime->room->seats->groupBy('row') as $row => $seats)
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 text-xs text-slate-400">{{ $row }}</span>
 
-                <div class="flex items-center gap-2">
-                    <span class="w-6 text-xs text-slate-400">{{ $row }}</span>
+                        @foreach($seats as $seat)
+                                    @php $isBooked = in_array($seat->id, $bookedSeatIds); @endphp
 
-                    @foreach($seats as $seat)
-                        @php $isBooked = in_array($seat->id, $bookedSeatIds); @endphp
+                                    <label class="seat-label w-7 h-7 text-[10px] flex items-center justify-center rounded cursor-pointer
+                               {{ $isBooked ? 'bg-red-600 opacity-60 cursor-not-allowed' : 'bg-slate-700 hover:bg-emerald-500' }}"
+                                        data-seat="{{ $seat->id }}">
+                                        @unless($isBooked)
+                                            <input type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden seat-checkbox">
+                                        @endunless
+                                        {{ $seat->number }}
+                                    </label>
 
-                        <label class="w-7 h-7 text-[10px] flex items-center justify-center rounded cursor-pointer
-                            {{ $isBooked ? 'bg-red-600 opacity-60 cursor-not-allowed' : 'bg-slate-700 hover:bg-emerald-500' }}">
-                            @unless($isBooked)
-                                <input type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden">
-                            @endunless
-                            {{ $seat->number }}
-                        </label>
-                    @endforeach
+                        @endforeach
+                    </div>
+
+                @endforeach
+
+            </div>
+        </div>
+
+            <div class="mt-6 grid md:grid-cols-3 gap-4">
+
+                <div class="md:col-span-2">
+                    <input type="text" name="customer_name" required placeholder="Họ tên"
+                        class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 mb-2">
+
+                    <input type="email" name="customer_email" placeholder="Email"
+                        class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 mb-2">
+
+                    <input type="text" name="customer_phone" placeholder="Số điện thoại"
+                        class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700">
                 </div>
 
-            @endforeach
-
-        </div>
-
-        <div class="mt-6 grid md:grid-cols-3 gap-4">
-
-            <div class="md:col-span-2">
-                <input type="text" name="customer_name" required placeholder="Họ tên"
-                       class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 mb-2">
-
-                <input type="email" name="customer_email" placeholder="Email"
-                       class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 mb-2">
-
-                <input type="text" name="customer_phone" placeholder="Số điện thoại"
-                       class="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700">
-            </div>
-
-            <div>
-                <button type="submit"
+                <div>
+                    <button type="submit"
                         class="w-full px-4 py-2 rounded bg-emerald-500 hover:bg-emerald-600 font-semibold">
-                    Xác nhận đặt vé
-                </button>
+                        Xác nhận đặt vé
+                    </button>
+                </div>
+
             </div>
 
-        </div>
+        </form>
 
-    </form>
+    </div>
 
-</div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+
+                document.querySelectorAll('.seat-label').forEach(label => {
+
+                    const checkbox = label.querySelector('.seat-checkbox');
+
+                    if (!checkbox) return;
+
+                    // Khi click vào ghế
+                    label.addEventListener('click', () => {
+
+                        // Toggle class selected
+                        if (checkbox.checked) {
+                            label.classList.remove('bg-emerald-500');
+                            label.classList.add('bg-slate-700');
+                        } else {
+                            label.classList.remove('bg-slate-700');
+                            label.classList.add('bg-emerald-500');
+                        }
+                    });
+
+                });
+
+            });
+        </script>
+    @endpush
+
 
 @endsection
