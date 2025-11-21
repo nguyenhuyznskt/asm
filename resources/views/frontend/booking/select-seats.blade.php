@@ -20,32 +20,33 @@
         <form method="POST" action="{{ route('booking.store', $showtime) }}">
             @csrf
             <div class="flex justify-center">
-            <div class="space-y-2">
+                <div class="space-y-2">
 
-                @foreach($showtime->room->seats->groupBy('row') as $row => $seats)
+                    @foreach($showtime->room->seats->groupBy('row') as $row => $seats)
 
-                    <div class="flex items-center gap-2">
-                        <span class="w-6 text-xs text-slate-400">{{ $row }}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 text-xs text-slate-400">{{ $row }}</span>
 
-                        @foreach($seats as $seat)
-                                    @php $isBooked = in_array($seat->id, $bookedSeatIds); @endphp
+                            @foreach($seats as $seat)
+                                @php $isBooked = in_array($seat->id, $bookedSeatIds); @endphp
 
-                                    <label class="seat-label w-7 h-7 text-[10px] flex items-center justify-center rounded cursor-pointer
-                               {{ $isBooked ? 'bg-red-600 opacity-60 cursor-not-allowed' : 'bg-slate-700 hover:bg-emerald-500' }}"
-                                        data-seat="{{ $seat->id }}">
-                                        @unless($isBooked)
-                                            <input type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden seat-checkbox">
-                                        @endunless
-                                        {{ $seat->number }}
-                                    </label>
+                                <label
+                                    class="seat-label w-7 h-7 text-[10px] flex items-center justify-center rounded cursor-pointer
+                                           {{ $isBooked ? 'bg-red-600 opacity-60 cursor-not-allowed' : 'bg-slate-700 hover:bg-emerald-500' }}"
+                                    data-seat="{{ $seat->id }}">
+                                    @unless($isBooked)
+                                        <input type="checkbox" name="seats[]" value="{{ $seat->id }}" class="hidden seat-checkbox">
+                                    @endunless
+                                    {{ $seat->number }}
+                                </label>
 
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
 
-                @endforeach
+                    @endforeach
 
+                </div>
             </div>
-        </div>
 
             <div class="mt-6 grid md:grid-cols-3 gap-4">
 
