@@ -32,13 +32,13 @@ class DatabaseSeeder extends Seeder
     \App\Models\Cinema::factory(1)->create();
 
     // mỗi rạp tạo 3 phòng
-    \App\Models\Room::factory(3)->create();
+    \App\Models\Room::factory(6)->create();
 
     // tạo 50 ghế cho mỗi phòng bằng SeatSeeder riêng
     $this->call(SeatSeeder::class);
 
     // tạo 5 phim
-    \App\Models\Movie::factory(5)->create();
+    \App\Models\Movie::factory(20)->create();
 
     // mỗi phim tạo 4 suất chiếu
     $this->call(ShowtimeSeeder::class);

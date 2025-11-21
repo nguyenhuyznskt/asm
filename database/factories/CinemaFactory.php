@@ -12,7 +12,7 @@ class CinemaFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'Laravel Cinema ' . $this->faker->numberBetween(1,10),
+            'name' => 'Yuhn Cinema ' . $this->faker->numberBetween(1,10),
             'address' => $this->faker->address(),
             'city' => $this->faker->city(),
         ];

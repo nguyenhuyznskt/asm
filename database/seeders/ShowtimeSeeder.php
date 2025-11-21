@@ -14,7 +14,7 @@ class ShowtimeSeeder extends Seeder
         $room = Room::first();
 
         Movie::all()->each(function ($movie) use ($room) {
-            foreach (range(1, 3) as $i) {
+            foreach (range(1, 5) as $i) {
                 $start = now()->addDays(rand(0, 5))->setTime(rand(9, 22), 0);
 
                 Showtime::create([
