@@ -13,14 +13,19 @@ class MovieFactory extends Factory
     public function definition(): array
     {
         $title = $this->faker->sentence(3);
+        // dùng seed random để mỗi phim 1 ảnh khác nhau
+        $seed = $this->faker->unique()->numberBetween(1, 9999);
 
         return [
             'title' => $title,
             'slug'  => Str::slug($title) . '-' . $this->faker->unique()->numberBetween(100, 999),
             'description' => $this->faker->paragraph(),
             'duration_minutes' => $this->faker->numberBetween(90, 150),
-            'poster_url' => 'https://via.placeholder.com/300x450?text=Movie',
-            'banner_url' => 'https://via.placeholder.com/1200x400?text=Banner',
+            // Ảnh poster dọc 300x450
+            'poster_url' => "https://picsum.photos/seed/poster{$seed}/300/450",
+
+            // Ảnh banner ngang 1200x400
+            'banner_url' => "https://picsum.photos/seed/banner{$seed}/1200/400",
             'release_date' => $this->faker->dateTimeBetween('-6 months', '+6 months'),
             'age_rating' => $this->faker->randomElement(['P', '13+', '16+', '18+']),
         ];
