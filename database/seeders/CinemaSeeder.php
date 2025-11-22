@@ -9,6 +9,20 @@ class CinemaSeeder extends Seeder
 {
     public function run(): void
     {
-        Cinema::factory()->count(1)->create();
+        $cinemas = [
+            'Laravel Cinema Hà Nội',
+            'Laravel Cinema Hồ Chí Minh',
+            'Laravel Cinema Đà Nẵng',
+            'Laravel Cinema Hải Phòng',
+            'Laravel Cinema Cần Thơ',
+        ];
+
+        foreach ($cinemas as $name) {
+            Cinema::create([
+                'name'    => $name,
+                'address' => 'Địa chỉ demo của ' . $name,
+                'city'    => $name,
+            ]);
+        }
     }
 }

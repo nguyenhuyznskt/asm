@@ -16,7 +16,20 @@
 
         <p class="text-center text-xs text-slate-400 mb-2">Màn hình</p>
         <div class="h-1 bg-slate-500 mb-4"></div>
-
+        @if ($errors->any())
+        <div class="mb-4 text-red-400 text-sm">
+            @foreach ($errors->all() as $error)
+                <div>- {{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+    
+    @if (session('success'))
+        <div class="mb-4 text-emerald-400 text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+    
         <form method="POST" action="{{ route('booking.store', $showtime) }}">
             @csrf
             <div class="flex justify-center">
@@ -75,34 +88,40 @@
     </div>
 
 
+
     @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-
-                document.querySelectorAll('.seat-label').forEach(label => {
-
-                    const checkbox = label.querySelector('.seat-checkbox');
-
-                    if (!checkbox) return;
-
-                    // Khi click vào ghế
-                    label.addEventListener('click', () => {
-
-                        // Toggle class selected
-                        if (checkbox.checked) {
-                            label.classList.remove('bg-emerald-500');
-                            label.classList.add('bg-slate-700');
-                        } else {
-                            label.classList.remove('bg-slate-700');
-                            label.classList.add('bg-emerald-500');
-                        }
-                    });
-
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    
+            document.querySelectorAll('.seat-label').forEach(label => {
+    
+                const checkbox = label.querySelector('.seat-checkbox');
+    
+                if (!checkbox) return;
+    
+                label.addEventListener('click', (e) => {
+                    e.preventDefault(); // tránh hành vi mặc định lằng nhằng
+    
+                    // Tự toggle checked
+                    checkbox.checked = !checkbox.checked;
+    
+                    // Đổi màu theo trạng thái
+                    if (checkbox.checked) {
+                        label.classList.remove('bg-slate-700');
+                        label.classList.add('bg-emerald-500');
+                    } else {
+                        label.classList.remove('bg-emerald-500');
+                        label.classList.add('bg-slate-700');
+                    }
                 });
-
+    
             });
-        </script>
+    
+        });
+    </script>
     @endpush
+    
+
 
 
 @endsection

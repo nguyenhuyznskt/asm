@@ -10,12 +10,16 @@ class RoomSeeder extends Seeder
 {
     public function run(): void
     {
-        $cinema = Cinema::first();
+        Cinema::all()->each(function ($cinema) {
 
-        Room::create([
-            'cinema_id' => $cinema->id,
-            'name' => 'Phòng 1',
-            'total_seats' => 50,
-        ]);
+            foreach (range(1, 6) as $number) {
+                Room::create([
+                    'cinema_id'   => $cinema->id,
+                    'name'        => 'Phòng ' . $number,
+                    'total_seats' => 60,  // hoặc số tuỳ mày
+                ]);
+            }
+
+        });
     }
 }

@@ -10,17 +10,20 @@ class SeatSeeder extends Seeder
 {
     public function run(): void
     {
-        $room = Room::first();
+        Room::all()->each(function ($room) {
 
-        foreach (range('A', 'E') as $row) {
-            foreach (range(1, 10) as $num) {
-                Seat::create([
-                    'room_id' => $room->id,
-                    'row' => $row,
-                    'number' => $num,
-                    'type' => $num > 8 ? 'vip' : 'normal',
-                ]);
+            $rows = ['A', 'B', 'C', 'D', 'E']; // 5 hàng
+            foreach ($rows as $row) {
+                foreach (range(1, 10) as $number) { // 10 ghế mỗi hàng
+                    Seat::create([
+                        'room_id' => $room->id,
+                        'row'     => $row,
+                        'number'  => $number,
+                        'type'    => 'normal', // ← DÚNG GIÁ TRỊ NẰM TRONG ENUM
+                    ]);
+                }
             }
-        }
+
+        });
     }
 }

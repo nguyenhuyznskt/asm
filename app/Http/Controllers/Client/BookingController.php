@@ -24,6 +24,8 @@ class BookingController extends Controller
 
     public function store(Request $request, Showtime $showtime)
     {
+
+        // dd($request->all());
         $data = $request->validate([
             'customer_name'  => 'required|string|max:255',
             'customer_email' => 'nullable|email',
@@ -51,7 +53,22 @@ class BookingController extends Controller
             ]);
         }
 
-        return redirect()->route('home')
-            ->with('success', 'Đặt vé thành công! Mã đơn #' . $booking->id);
+        return redirect()
+        ->route('ticket.show', $booking->id)
+        ->with('success', 'Đặt vé thành công! Mã đơn #' . $booking->id);
+        // return view('booking.ticket')
+        //     ->with('success', 'Đặt vé thành công! Mã đơn #' . $booking->id);
+    }
+
+    public function ticket(Booking $booking)
+    {
+        // nếu cần quan hệ:
+        $booking->load([
+            'showtime.movie',
+            'showtime.room.cinema',
+            'seats', // hoặc 'bookingSeats.seat' tùy mày define quan hệ
+        ]);
+    
+        return view('frontend.booking.ticket', compact('booking'));
     }
 }

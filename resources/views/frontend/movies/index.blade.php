@@ -6,6 +6,11 @@
 
 <h1 class="text-3xl font-bold mb-4">Danh sách phim</h1>
 
+@if(request('q'))
+    <p class="text-sm text-slate-400 mb-3">
+        Kết quả tìm kiếm cho: <span class="text-emerald-400">"{{ request('q') }}"</span>
+    </p>
+@endif
 <div class="grid md:grid-cols-4 gap-4">
 
     @foreach($movies as $movie)
