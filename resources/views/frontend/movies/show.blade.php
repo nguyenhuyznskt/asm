@@ -25,7 +25,6 @@
         <h2 class="text-xl font-semibold mb-3">Suất chiếu</h2>
 
         @forelse($showtimesByDate as $date => $showtimes)
-
             <p class="text-sm text-slate-400 mb-1">
                 Ngày {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
             </p>
@@ -40,14 +39,12 @@
                     </a>
                 @endforeach
             </div>
-
         @empty
             <p class="text-slate-400">Chưa có suất chiếu nào.</p>
         @endforelse
     </div>
 
 </div>
-
 
 <h2 class="text-xl font-semibold mt-8 mb-4">Đánh giá phim</h2>
 
@@ -113,7 +110,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const starBtns = document.querySelectorAll('.star-btn');
+    const starBtns   = document.querySelectorAll('.star-btn');
     const ratingInput = document.getElementById('rating-input');
 
     function updateStars(value) {
