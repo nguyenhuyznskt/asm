@@ -68,7 +68,38 @@
                         </span>
                     </div>
                 </form>
+                @auth
+                    <div class="flex items-center gap-3 text-sm">
+                        <span class="text-slate-300">
+                            Xin chào, {{ auth()->user()->name }}
+                        </span>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-xs">
+                                Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <div class="flex items-center gap-2 text-sm">
+                        <a href="{{ route('login') }}"
+                           class="px-3 py-1 rounded-full border border-slate-700 hover:border-emerald-400">
+                            Đăng nhập
+                        </a>
+                        <a href="{{ route('register') }}"
+                           class="px-3 py-1 rounded-full bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-semibold">
+                            Đăng ký
+                        </a>
+                    </div>
+                @endauth
             </div>
+
+
+
+
+
+
+
         </div>
     </header>
     
