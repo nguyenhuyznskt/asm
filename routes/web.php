@@ -13,16 +13,17 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 // Flow đặt vé theo rạp
+
+
 Route::prefix('dat-ve')->name('booking.flow.')->group(function () {
     // B1: chọn rạp
     Route::get('/', [BookingFlowController::class, 'chooseCinema'])->name('cinema');
 
-    // B2: chọn phim trong rạp
+    // B2: chọn phim + ngày + giờ trong rạp
     Route::get('/phim', [BookingFlowController::class, 'chooseMovie'])->name('movie');
-
-    // B3: chọn ngày + suất chiếu
-    Route::get('/suat', [BookingFlowController::class, 'chooseShowtime'])->name('showtime');
 });
+
+
 
 // Trang client
 Route::get('/', [HomeController::class, 'index'])->name('home');

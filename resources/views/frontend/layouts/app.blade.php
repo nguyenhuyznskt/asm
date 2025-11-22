@@ -70,6 +70,10 @@
                 </form>
                 @auth
                     <div class="flex items-center gap-3 text-sm">
+                        <a href="{{ route('booking.history') }}"
+                        class="text-slate-200 hover:text-emerald-400">
+                         Vé của tôi
+                     </a>
                         <span class="text-slate-300">
                             Xin chào, {{ auth()->user()->name }}
                         </span>

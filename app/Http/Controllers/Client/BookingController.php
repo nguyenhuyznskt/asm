@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Client;
 
+use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingSeat;
 use App\Models\Combo;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class BookingController extends Controller
 {
@@ -49,6 +52,7 @@ class BookingController extends Controller
             'customer_phone' => $data['customer_phone'] ?? null,
             'total_price'    => 0,             // tạm
             'status'         => 'confirmed',
+            'user_id'        => Auth::id(),
         ]);
     
         // Lưu ghế
@@ -105,5 +109,36 @@ class BookingController extends Controller
     
         return view('frontend.booking.ticket', compact('booking'));
     }
+
+    public function history()
+{
+    // Lấy user đang login
+    $user = Auth::user();   // hoặc Auth::id() nếu chỉ cần id
+
+    if (!$user) {
+        return redirect()->route('login')
+            ->with('error', 'Bạn cần đăng nhập để xem lịch sử vé.');
+    }
+
+    $bookings = Booking::with([
+            'showtime.movie',
+            'showtime.room.cinema',
+            'seats',
+        ])
+        ->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id);
+
+            if ($user->email) {
+                $q->orWhere('customer_email', $user->email);
+            }
+        })
+        ->latest()
+        ->paginate(10);
+
+    return view('frontend.booking.history', compact('bookings'));
+}
+
+    
+    
     
 }
