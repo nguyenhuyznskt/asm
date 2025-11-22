@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
     $this->call(SeatSeeder::class);
 
     // tạo 5 phim
+    $this->call( ComboSeeder::class); 
     \App\Models\Movie::factory(20)->create();
 
     // mỗi phim tạo 4 suất chiếu

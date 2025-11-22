@@ -28,4 +28,8 @@ class Booking extends Model
     {
         return $this->hasMany(BookingSeat::class);
     }
+    public function combos()
+{
+    return $this->hasMany(BookingCombo::class);
+}
 }

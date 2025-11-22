@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\BookingSeat;
+use App\Models\Combo;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 
@@ -18,14 +19,17 @@ class BookingController extends Controller
         $bookedSeatIds = BookingSeat::whereHas('booking', function ($query) use ($showtime) {
             $query->where('showtime_id', $showtime->id);
         })->pluck('seat_id')->toArray();
+        $combos = Combo::where('is_active', true)->get();
 
-        return view('frontend.booking.select-seats', compact('showtime', 'bookedSeatIds'));
+        return view('frontend.booking.select-seats', [
+            'showtime'      => $showtime,
+            'bookedSeatIds' => $bookedSeatIds,
+            'combos'        => $combos,
+        ]);
     }
 
     public function store(Request $request, Showtime $showtime)
     {
-
-        // dd($request->all());
         $data = $request->validate([
             'customer_name'  => 'required|string|max:255',
             'customer_email' => 'nullable|email',
@@ -33,32 +37,62 @@ class BookingController extends Controller
             'seats'          => 'required|array|min:1',
             'seats.*'        => 'exists:seats,id',
         ]);
-
-        $total = count($data['seats']) * $showtime->price;
-
+    
+        $seatIds = $data['seats'];
+    
+        $baseTotal = count($seatIds) * $showtime->price;
+    
         $booking = Booking::create([
             'showtime_id'    => $showtime->id,
             'customer_name'  => $data['customer_name'],
             'customer_email' => $data['customer_email'] ?? null,
             'customer_phone' => $data['customer_phone'] ?? null,
-            'total_price'    => $total,
+            'total_price'    => 0,             // tạm
             'status'         => 'confirmed',
         ]);
-
-        foreach ($data['seats'] as $seatId) {
+    
+        // Lưu ghế
+        foreach ($seatIds as $seatId) {
             BookingSeat::create([
                 'booking_id' => $booking->id,
                 'seat_id'    => $seatId,
                 'price'      => $showtime->price,
             ]);
         }
-
-        return redirect()
-        ->route('ticket.show', $booking->id)
-        ->with('success', 'Đặt vé thành công! Mã đơn #' . $booking->id);
-        // return view('booking.ticket')
-        //     ->with('success', 'Đặt vé thành công! Mã đơn #' . $booking->id);
+    
+        // ====== Lưu combo ======
+        $comboData = $request->input('combo', []); // [combo_id => quantity]
+    
+        $comboTotal = 0;
+    
+        foreach ($comboData as $comboId => $qty) {
+            $qty = (int) $qty;
+            if ($qty <= 0) continue;
+    
+            $combo = Combo::find($comboId);
+            if (!$combo) continue;
+    
+            $lineTotal = $combo->price * $qty;
+            $comboTotal += $lineTotal;
+    
+            $booking->combos()->create([
+                'combo_id'    => $combo->id,
+                'quantity'    => $qty,
+                'unit_price'  => $combo->price,
+                'total_price' => $lineTotal,
+            ]);
+        }
+    
+        $totalPrice = $baseTotal + $comboTotal;
+    
+        $booking->update([
+            'total_price' => $totalPrice,
+        ]);
+    
+        return redirect()->route('ticket.show', $booking->id)
+            ->with('success', 'Đặt vé thành công!');
     }
+    
 
     public function ticket(Booking $booking)
     {
@@ -71,4 +105,5 @@ class BookingController extends Controller
     
         return view('frontend.booking.ticket', compact('booking'));
     }
+    
 }
