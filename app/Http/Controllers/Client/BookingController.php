@@ -33,6 +33,9 @@ class BookingController extends Controller
 
     public function store(Request $request, Showtime $showtime)
     {
+
+       
+        
         $data = $request->validate([
             'customer_name'  => 'required|string|max:255',
             'customer_email' => 'nullable|email',

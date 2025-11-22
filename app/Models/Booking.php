@@ -17,6 +17,7 @@ class Booking extends Model
         'customer_phone',
         'total_price',
         'status',
+        'user_id',
     ];
 
     public function showtime()
