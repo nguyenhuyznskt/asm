@@ -9,6 +9,6 @@ class MovieSeeder extends Seeder
 {
     public function run(): void
     {
-        Movie::factory(6)->create();
+        Movie::inRandomOrder()->take(5)->update(['is_featured' => true]);
     }
 }

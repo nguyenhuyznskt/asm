@@ -28,6 +28,7 @@ class MovieFactory extends Factory
             'banner_url' => "https://picsum.photos/seed/banner{$seed}/1200/400",
             'release_date' => $this->faker->dateTimeBetween('-6 months', '+6 months'),
             'age_rating' => $this->faker->randomElement(['P', '13+', '16+', '18+']),
+            'is_featured'  => $this->faker->boolean(20), // 20% phim là nổi bật
         ];
     }
 }

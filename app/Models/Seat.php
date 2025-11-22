@@ -20,4 +20,10 @@ class Seat extends Model
     {
         return $this->belongsTo(Room::class);
     }
+    public function bookings()
+    {
+        return $this->belongsToMany(Booking::class, 'booking_seats')
+            ->withPivot('price')
+            ->withTimestamps();
+    }
 }

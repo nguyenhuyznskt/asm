@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 class Movie extends Model
 {
     //
@@ -36,6 +37,25 @@ class Movie extends Model
     public function avgRating()
     {
         return $this->comments()->avg('rating');
+    }
+
+    public function scopeNowShowing(Builder $query): Builder
+    {
+        return $query->whereHas('showtimes', function ($q) {
+            $q->where('start_time', '>=', now());
+        });
+    }
+
+    // Sắp chiếu: ngày khởi chiếu > hôm nay
+    public function scopeComingSoon(Builder $query): Builder
+    {
+        return $query->whereDate('release_date', '>', now()->toDateString());
+    }
+
+    // Phim nổi bật
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_featured', true);
     }
     
 }

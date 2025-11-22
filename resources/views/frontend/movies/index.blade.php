@@ -11,6 +11,26 @@
         Kết quả tìm kiếm cho: <span class="text-emerald-400">"{{ request('q') }}"</span>
     </p>
 @endif
+
+<div class="flex gap-2 mb-4 text-sm">
+    <a href="{{ route('movies.index') }}"
+       class="px-3 py-1 rounded-full border {{ !$type ? 'border-emerald-500 text-emerald-400' : 'border-slate-700' }}">
+        Tất cả
+    </a>
+    <a href="{{ route('movies.index', ['type' => 'now_showing']) }}"
+       class="px-3 py-1 rounded-full border {{ $type === 'now_showing' ? 'border-emerald-500 text-emerald-400' : 'border-slate-700' }}">
+        Đang chiếu
+    </a>
+    <a href="{{ route('movies.index', ['type' => 'coming_soon']) }}"
+       class="px-3 py-1 rounded-full border {{ $type === 'coming_soon' ? 'border-emerald-500 text-emerald-400' : 'border-slate-700' }}">
+        Sắp chiếu
+    </a>
+    <a href="{{ route('movies.index', ['type' => 'featured']) }}"
+       class="px-3 py-1 rounded-full border {{ $type === 'featured' ? 'border-emerald-500 text-emerald-400' : 'border-slate-700' }}">
+        Nổi bật
+    </a>
+</div>
+
 <div class="grid md:grid-cols-4 gap-4">
 
     @foreach($movies as $movie)

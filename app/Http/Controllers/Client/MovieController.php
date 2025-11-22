@@ -10,21 +10,26 @@ class MovieController extends Controller
     public function index(Request $request)
     {
         $query = Movie::query();
-
-        // Nếu có từ khóa tìm kiếm ?q=...
-        if ($search = $request->input('q')) {
-            if ($search = $request->input('q')) {
-                $query->where('title', 'like', '%' . $search . '%');
-            }
+    
+        $type = $request->get('type');
+    
+        if ($type === 'coming_soon') {
+            $query->comingSoon();
+        } elseif ($type === 'now_showing') {
+            $query->nowShowing();
+        } elseif ($type === 'featured') {
+            $query->featured();
         }
-
-        $movies = $query
-            ->orderBy('release_date', 'desc')
-            ->paginate(8)
-            ->withQueryString(); // giữ lại ?q=... khi phân trang
-
-        return view('frontend.movies.index', compact('movies'));
+    
+        if ($search = $request->input('q')) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+    
+        $movies = $query->orderBy('release_date', 'desc')->paginate(12)->withQueryString();
+    
+        return view('frontend.movies.index', compact('movies', 'type'));
     }
+    
 
     public function show(string $slug)
     {

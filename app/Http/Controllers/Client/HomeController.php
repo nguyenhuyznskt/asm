@@ -12,18 +12,24 @@ class HomeController extends Controller
     {
         $now = now();
 
-        // Phim đang chiếu
-        $nowShowing = Movie::whereDate('release_date', '<=', $now)
-            ->orderBy('release_date', 'desc')
-            ->take(8)
-            ->get();
+    // Phim đang chiếu
+    $nowShowing = Movie::nowShowing()
+        ->orderBy('release_date', 'desc')
+        ->take(8)
+        ->get();
 
-        // Phim sắp chiếu
-        $comingSoon = Movie::whereDate('release_date', '>', $now)
-            ->orderBy('release_date', 'asc')
-            ->take(8)
-            ->get();
+    // Phim sắp chiếu
+    $comingSoon = Movie::comingSoon()
+        ->orderBy('release_date', 'asc')
+        ->take(8)
+        ->get();
 
-        return view('frontend.home', compact('nowShowing', 'comingSoon'));
+    // Phim nổi bật
+    $featured = Movie::featured()
+        ->orderBy('release_date', 'desc')
+        ->take(5)
+        ->get();
+
+        return view('frontend.home', compact('nowShowing', 'comingSoon', 'featured'));
     }
 }
