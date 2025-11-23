@@ -18,7 +18,7 @@
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
             {{-- Logo / tên rạp --}}
             <a href="{{ route('home') }}" class="text-xl font-bold text-emerald-400">
-                🎬 Laravel Cinema
+                🎬 Yuhn Cinema
             </a>
     
             {{-- Menu + search --}}
