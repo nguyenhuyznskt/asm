@@ -91,7 +91,11 @@ class BookingController extends Controller
         }
     
         $totalPrice = $baseTotal + $comboTotal;
-    
+        $movie = $showtime->movie; // hoặc $booking->showtime->movie;
+
+        if ($movie) {
+            $movie->increment('total_bookings');
+        }
         $booking->update([
             'total_price' => $totalPrice,
         ]);

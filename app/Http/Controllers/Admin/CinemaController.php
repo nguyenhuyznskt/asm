@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Cinema;
 use Illuminate\Http\Request;
+use App\ActivityLogger;
 
 class CinemaController extends Controller
 {
@@ -26,7 +27,18 @@ class CinemaController extends Controller
             'city'    => 'nullable|string|max:255',
         ]);
 
-        Cinema::create($data);
+        $cinema = Cinema::create($data);
+        ActivityLogger::log(
+            event: 'Thêm Rạp',
+            description: 'Admin thêm rạp ' . $cinema->name,
+            subject: $cinema, // 🔥 Quan trọng: để có subject_type + subject_id
+            properties: [
+                // mày muốn lưu id hay tên thể loại tuỳ:
+                // 'genre' => $movie->genre->name ?? null,
+                'name'     => $cinema->name,
+                'city' => $cinema->city, // lúc này đã là Carbon (nếu cast)
+            ]
+        );
 
         return redirect()->route('admin.cinemas.index')
             ->with('success', 'Thêm rạp thành công');
@@ -46,7 +58,17 @@ class CinemaController extends Controller
         ]);
 
         $cinema->update($data);
-
+        ActivityLogger::log(
+            event: 'Thêm Rạp',
+            description: 'Admin sửa rạp ' . $cinema->name,
+            subject: $cinema, // 🔥 Quan trọng: để có subject_type + subject_id
+            properties: [
+                // mày muốn lưu id hay tên thể loại tuỳ:
+                // 'genre' => $movie->genre->name ?? null,
+                'name'     => $cinema->name,
+                'city' => $cinema->city, // lúc này đã là Carbon (nếu cast)
+            ]
+        );
         return redirect()->route('admin.cinemas.index')
             ->with('success', 'Cập nhật rạp thành công');
     }
@@ -54,7 +76,17 @@ class CinemaController extends Controller
     public function destroy(Cinema $cinema)
     {
         $cinema->delete();
-
+        ActivityLogger::log(
+            event: 'Thêm Rạp',
+            description: 'Admin loại bỏ rạp ' . $cinema->name,
+            subject: $cinema, // 🔥 Quan trọng: để có subject_type + subject_id
+            properties: [
+                // mày muốn lưu id hay tên thể loại tuỳ:
+                // 'genre' => $movie->genre->name ?? null,
+                'name'     => $cinema->name,
+                'city' => $cinema->city, // lúc này đã là Carbon (nếu cast)
+            ]
+        );
         return redirect()->route('admin.cinemas.index')
             ->with('success', 'Xóa rạp thành công');
     }

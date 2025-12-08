@@ -21,7 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'is_active'
     ];
 
     /**
@@ -51,5 +52,9 @@ class User extends Authenticatable
 {
     return $this->hasMany(Booking::class);
 }
+protected $casts = [
+    'email_verified_at' => 'datetime',
+    'is_active'         => 'boolean',
+];
 
 }

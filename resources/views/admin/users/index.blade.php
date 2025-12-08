@@ -2,7 +2,7 @@
 
 @section('title', 'Tài khoản')
 @section('page_title', 'Tài khoản')
-@section('page_subtitle', 'Quản lý tài khoản người dùng & admin')
+@section('page_subtitle', 'Quản lý vai trò & trạng thái tài khoản')
 
 @section('styles')
 <style>
@@ -59,6 +59,13 @@
         border-width: 1px;
         border-style: solid;
     }
+    .user-badge-status {
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        border-width: 1px;
+        border-style: solid;
+    }
     .user-chip-avatar {
         width: 32px;
         height: 32px;
@@ -71,19 +78,34 @@
         font-weight: 600;
         color: #020617;
     }
-    .user-btn {
+    .user-action-btn {
         border-radius: 999px;
-        font-size: 0.75rem;
-        padding: 6px 12px;
+        font-size: 0.7rem;
+        padding: 4px 10px;
         font-weight: 500;
         border: none;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
-    .user-btn-primary {
+    .user-action-btn-primary {
         background: linear-gradient(to right, #22c55e, #0ea5e9);
         color: #020617;
     }
-    .user-btn-primary:hover { filter: brightness(1.08); }
+    .user-action-btn-danger {
+        background: rgba(248,113,113,0.15);
+        color: #fecaca;
+        border: 1px solid rgba(248,113,113,0.7);
+    }
+    .user-action-btn-secondary {
+        background: rgba(148,163,184,0.15);
+        color: #e5e7eb;
+        border: 1px solid rgba(148,163,184,0.7);
+    }
+    .user-action-btn:hover {
+        filter: brightness(1.05);
+    }
 </style>
 @endsection
 
@@ -91,8 +113,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('user-search');
-    const filterForm  = document.getElementById('user-filter-form');
-    const roleSelect  = document.getElementById('user-role-filter');
 
     function filterClient() {
         const keyword = (searchInput?.value || '').toLowerCase();
@@ -105,16 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', filterClient);
     }
-
-    if (roleSelect && filterForm) {
-        roleSelect.addEventListener('change', () => filterForm.submit());
-    }
 });
 </script>
 @endsection
 
 @section('header_actions')
-
 @endsection
 
 @section('content')
@@ -126,12 +141,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <form id="user-filter-form" method="GET" class="flex items-center gap-2">
         <div class="w-40">
-            <select id="user-role-filter" name="role" class="user-select text-xs">
+            <select name="role" class="user-select text-xs">
                 <option value="">Tất cả vai trò</option>
                 <option value="admin" @selected(request('role') === 'admin')>Admin</option>
                 <option value="user" @selected(request('role') === 'user')>User</option>
             </select>
         </div>
+        <div class="w-40">
+            <select name="active" class="user-select text-xs">
+                <option value="">Tất cả trạng thái</option>
+                <option value="1" @selected(request('active') === '1')>Đang hoạt động</option>
+                <option value="0" @selected(request('active') === '0')>Đã khóa</option>
+            </select>
+        </div>
+        <button type="submit"
+                class="ml-2 px-3 py-1.5 rounded-full text-xs bg-slate-800 border border-slate-600 hover:border-emerald-400">
+            Lọc
+        </button>
     </form>
 </div>
 
@@ -142,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <th>Tài khoản</th>
             <th>Email</th>
             <th>Vai trò</th>
+            <th>Trạng thái</th>
             <th>Ngày tạo</th>
             <th class="text-right">Hành động</th>
         </tr>
@@ -178,31 +205,71 @@ document.addEventListener('DOMContentLoaded', () => {
                         </span>
                     @endif
                 </td>
+                <td class="text-xs">
+                    @if($user->is_active)
+                        <span class="user-badge-status bg-emerald-500/15 text-emerald-300 border-emerald-500/60">
+                            Đang hoạt động
+                        </span>
+                    @else
+                        <span class="user-badge-status bg-rose-500/15 text-rose-300 border-rose-500/60">
+                            Đã khóa
+                        </span>
+                    @endif
+                </td>
                 <td class="text-xs text-slate-400">
                     {{ optional($user->created_at)->format('d/m/Y H:i') ?? '—' }}
                 </td>
-                <td class="text-right">
-                    <a href="{{ route('admin.users.edit', $user) }}"
-                       class="text-xs text-sky-400 hover:text-sky-300 mr-3">
-                        Sửa
-                    </a>
+                <td class="text-right text-xs">
+                    {{-- CẤP / GỠ QUYỀN ADMIN (không áp dụng cho chính mình) --}}
                     @if(auth()->id() !== $user->id)
-                        <form action="{{ route('admin.users.destroy', $user) }}"
+                        @if($user->role === 'admin')
+                            <form action="{{ route('admin.users.remove_admin', $user) }}"
+                                  method="POST" class="inline-block mr-1"
+                                  onsubmit="return confirm('Gỡ quyền admin của tài khoản này?');">
+                                @csrf
+                                @method('PATCH')
+                                <button class="user-action-btn user-action-btn-secondary">
+                                    Gỡ admin
+                                </button>
+                            </form>
+                        @else
+                            <form action="{{ route('admin.users.make_admin', $user) }}"
+                                  method="POST" class="inline-block mr-1"
+                                  onsubmit="return confirm('Cấp quyền admin cho tài khoản này?');">
+                                @csrf
+                                @method('PATCH')
+                                <button class="user-action-btn user-action-btn-primary">
+                                    Cấp admin
+                                </button>
+                            </form>
+                        @endif
+
+                        {{-- KHÓA / MỞ KHÓA --}}
+                        <form action="{{ route('admin.users.toggle_active', $user) }}"
                               method="POST" class="inline-block"
-                              onsubmit="return confirm('Xóa tài khoản này?');">
-                            @csrf @method('DELETE')
-                            <button class="text-xs text-rose-400 hover:text-rose-300">
-                                Xóa
-                            </button>
+                              onsubmit="return confirm('{{ $user->is_active ? 'Khóa tài khoản này?' : 'Mở khóa tài khoản này?' }}');">
+                            @csrf
+                            @method('PATCH')
+                            @if($user->is_active)
+                                <button class="user-action-btn user-action-btn-danger">
+                                    Khóa
+                                </button>
+                            @else
+                                <button class="user-action-btn user-action-btn-secondary">
+                                    Mở khóa
+                                </button>
+                            @endif
                         </form>
                     @else
-                        <span class="text-[11px] text-slate-500">Không thể tự xóa</span>
+                        <span class="text-[11px] text-slate-500">
+                            Không thể chỉnh sửa chính mình
+                        </span>
                     @endif
                 </td>
             </tr>
         @empty
             <tr>
-                <td colspan="5" class="text-center text-sm text-slate-400 py-4">
+                <td colspan="6" class="text-center text-sm text-slate-400 py-4">
                     Chưa có tài khoản nào.
                 </td>
             </tr>

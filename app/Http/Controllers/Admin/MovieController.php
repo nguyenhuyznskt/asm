@@ -7,6 +7,7 @@ use App\Models\Genre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\ActivityLogger;
 
 class MovieController extends Controller
 {
@@ -73,7 +74,22 @@ class MovieController extends Controller
             $data['banner_url'] = $bannerPath;
         }
     
-        Movie::create($data);
+        $movie = Movie::create($data);
+
+    // GHI LOG
+    ActivityLogger::log(
+        event: 'Thêm phim',
+        description: 'Admin tạo phim ' . $movie->title,
+        subject: $movie, // 🔥 Quan trọng: để có subject_type + subject_id
+        properties: [
+            // mày muốn lưu id hay tên thể loại tuỳ:
+            // 'genre' => $movie->genre->name ?? null,
+            'genre_id'     => $movie->genre_id,
+            'release_date' => $movie->release_date?->toDateString(), // lúc này đã là Carbon (nếu cast)
+            'is_featured'  => (bool) $movie->is_featured,
+        ]
+    );
+       
     
         return redirect()->route('admin.movies.index')
             ->with('success', 'Thêm phim thành công');
@@ -133,6 +149,18 @@ class MovieController extends Controller
         }
     
         $movie->update($data);
+        ActivityLogger::log(
+            event: 'Thêm phim',
+            description: 'Admin cập nhật phim ' . $movie->title,
+            subject: $movie, // 🔥 Quan trọng: để có subject_type + subject_id
+            properties: [
+                // mày muốn lưu id hay tên thể loại tuỳ:
+                // 'genre' => $movie->genre->name ?? null,
+                'genre_id'     => $movie->genre_id,
+                'release_date' => $movie->release_date?->toDateString(), // lúc này đã là Carbon (nếu cast)
+                'is_featured'  => (bool) $movie->is_featured,
+            ]
+        );
     
         return redirect()->route('admin.movies.index')
             ->with('success', 'Cập nhật phim thành công');
@@ -142,6 +170,18 @@ class MovieController extends Controller
     public function destroy(Movie $movie)
     {
         $movie->delete();
+        ActivityLogger::log(
+            event: 'Thêm phim',
+            description: 'Admin xóa phim ' . $movie->title,
+            subject: $movie, // 🔥 Quan trọng: để có subject_type + subject_id
+            properties: [
+                // mày muốn lưu id hay tên thể loại tuỳ:
+                // 'genre' => $movie->genre->name ?? null,
+                'genre_id'     => $movie->genre_id,
+                'release_date' => $movie->release_date?->toDateString(), // lúc này đã là Carbon (nếu cast)
+                'is_featured'  => (bool) $movie->is_featured,
+            ]
+        );
 
         return redirect()->route('admin.movies.index')
             ->with('success', 'Xóa phim thành công');

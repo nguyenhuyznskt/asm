@@ -24,11 +24,22 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+       // Breeze sẽ check email + password, rate limit... như cũ
+    $request->authenticate();
 
-        $request->session()->regenerate();
+    // 👉 SAU KHI AUTH ĐÚNG, KIỂM TRA TÀI KHOẢN CÓ BỊ KHÓA KHÔNG
+    if (! Auth::user()->is_active) {
+        Auth::logout();
 
-        return redirect()->intended(route('home', absolute: false));
+        return back()->withErrors([
+            'email' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ admin.',
+        ])->onlyInput('email');
+    }
+
+    // Nếu active bình thường thì cho vào
+    $request->session()->regenerate();
+
+    return redirect()->intended(route('home', absolute: false));
     }
 
     /**

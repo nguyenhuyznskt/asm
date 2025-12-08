@@ -156,6 +156,7 @@
                 </a>
             @endif
 
+           
             @if(Route::has('admin.bookings.index'))
                 <a href="{{ route('admin.bookings.index') }}"
                    class="admin-sidebar-link
@@ -163,6 +164,14 @@
                     <span>Đặt vé</span>
                 </a>
             @endif
+
+            @if(Route::has('admin.activity_logs.index'))
+            <a href="{{ route('admin.activity_logs.index') }}"
+               class="admin-sidebar-link
+                   {{ request()->routeIs('admin.activity_logs.index.*') ? 'admin-sidebar-link-active' : '' }}">
+                <span>Admin Log</span>
+            </a>
+        @endif
         </nav>
 
         <div class="px-4 py-3 border-t border-slate-800 text-[11px] text-slate-400">

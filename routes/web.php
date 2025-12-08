@@ -10,6 +10,7 @@ use App\Http\Controllers\Client\MovieController;
 use App\Http\Controllers\Client\BookingController;
 use App\Http\Controllers\Client\BookingFlowController;
 use App\Http\Controllers\Client\CommentController;
+use App\Http\Controllers\Client\SimpleRecommendController;
 
 // =======================
 // Admin Controllers
@@ -25,6 +26,7 @@ use App\Http\Controllers\Admin\SeatController;
 use App\Http\Controllers\Admin\CommentController as CommentAdminController;
 use App\Http\Controllers\Admin\BookingController as BookingAdminController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ActivityLogController;
 
 
 // =======================
@@ -49,7 +51,15 @@ Route::middleware(['auth', 'is_admin'])
         Route::resource('showtimes', ShowtimeController::class);
 
         // Quản lý người dùng
-        Route::resource('users', UserController::class);
+       
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+
+        // Cấp / gỡ quyền admin
+        Route::patch('users/{user}/make-admin', [UserController::class, 'makeAdmin'])->name('users.make_admin');
+        Route::patch('users/{user}/remove-admin', [UserController::class, 'removeAdmin'])->name('users.remove_admin');
+    
+        // Khóa / mở khóa tài khoản
+        Route::patch('users/{user}/toggle-active', [UserController::class, 'toggleActive'])->name('users.toggle_active');
 
         // Quản lý ghế (chỉ xem & sửa)
         Route::resource('seats', SeatController::class)
@@ -62,6 +72,9 @@ Route::middleware(['auth', 'is_admin'])
         // Quản lý đặt vé
         Route::resource('bookings', BookingAdminController::class)
             ->only(['index', 'show', 'destroy']);
+
+            Route::get('activity-logs', [ActivityLogController::class, 'index'])
+        ->name('activity_logs.index');
     });
 
 
@@ -140,6 +153,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/comments/{comment}/dislike', [CommentController::class, 'dislike'])
         ->name('comments.dislike');
+
+
+     Route::get('/goi-y-don-gian', [SimpleRecommendController::class, 'index'])
+        ->name('movies.simple_recommend');
 });
 
 

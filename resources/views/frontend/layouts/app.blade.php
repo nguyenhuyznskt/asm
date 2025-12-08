@@ -20,6 +20,8 @@
             <a href="{{ route('home') }}" class="text-xl font-bold text-emerald-400">
                 🎬 Yuhn Cinema
             </a>
+
+           
     
             {{-- Menu + search --}}
             <div class="flex-1 flex items-center justify-end gap-4">
@@ -40,6 +42,10 @@
                        class="{{ request()->routeIs('booking.flow.*') ? 'text-emerald-400 font-semibold' : 'text-slate-200 hover:text-emerald-300' }}">
                         Đặt vé
                     </a>
+                    <a href="{{ route('movies.simple_recommend') }}"
+                    class="{{ request()->routeIs('movies.simple_recommend.*') ? 'text-emerald-400 font-semibold' : 'text-slate-200 hover:text-emerald-300' }}">
+                     Gợi ý phim
+                 </a>
                 
                     <a href="{{ route('about') }}"
                        class="{{ request()->routeIs('about') ? 'text-emerald-400 font-semibold' : 'text-slate-200 hover:text-emerald-300' }}">
