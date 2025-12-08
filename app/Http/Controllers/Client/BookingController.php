@@ -103,19 +103,94 @@ class BookingController extends Controller
         return redirect()->route('ticket.show', $booking->id)
             ->with('success', 'Đặt vé thành công!');
     }
+
+
+    public function payment(Booking $booking)
+    {
+        // đảm bảo booking thuộc về user hiện tại
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // nếu đã thanh toán rồi thì nhảy thẳng sang vé
+        if ($booking->payment_status === 'paid') {
+            return redirect()->route('booking.ticket', $booking);
+        }
+
+        // demo: tạo nội dung cho VietQR
+        $amount = (int) $booking->total_price; // đảm bảo là số
+        $accountNo   = '123456789';           // STK rạp của mày
+        $accountName = 'Yuhn Cinema';         // Tên chủ TK
+        $acqId       = '970436';              // mã ngân hàng (VD: Vietcombank...) – mày tự chỉnh
+
+        // Nội dung chuyển khoản: BOOKING-{id}
+        $addInfo = 'BOOKING-' . $booking->id;
+
+        // Ví dụ dùng img.vietqr.io (dạng demo, mày chỉnh lại cho đúng ngân hàng)
+        $vietqrUrl = "https://img.vietqr.io/image/{$acqId}-{$accountNo}-compact.png".
+                     "?amount={$amount}&addInfo=".urlencode($addInfo).
+                     "&accountName=".urlencode($accountName);
+
+        return view('frontend.booking.payment', compact('booking', 'vietqrUrl', 'addInfo', 'amount'));
+    }
+    public function confirmPayment(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // chỉ cho confirm khi đang pending
+        if ($booking->payment_status !== 'pending') {
+            return redirect()->route('booking.ticket', $booking)
+                ->with('info', 'Đơn này đã được xử lý trước đó.');
+        }
+
+        $booking->update([
+            'payment_status' => 'paid',
+            'paid_at'        => now(),
+        ]);
+
+        // sau khi thanh toán xong → chuyển sang trang vé
+        return redirect()->route('booking.ticket', $booking)
+            ->with('success', 'Thanh toán thành công. Đây là vé của bạn.');
+    }
     
 
     public function ticket(Booking $booking)
     {
-        // nếu cần quan hệ:
-        $booking->load([
-            'showtime.movie',
-            'showtime.room.cinema',
-            'seats', // hoặc 'bookingSeats.seat' tùy mày define quan hệ
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($booking->payment_status !== 'paid') {
+            return redirect()->route('booking.payment', $booking)
+                ->with('error', 'Đơn này chưa thanh toán, không thể xem vé.');
+        }
+        $booking->load('seats', 'showtime.movie', 'showtime.room.cinema');
+
+        // Nội dung QR ticket: mày tùy chọn
+        // đơn giản nhất: mã vé
+        $ticketPayload = json_encode([
+            'code'        => 'TICKET-' . $booking->id,
+            'booking_id'  => $booking->id,
+            'user_email'  => $booking->user->email,
+            'movie'       => $booking->showtime->movie->title ?? null,
+            'showtime'    => optional($booking->showtime->start_time)->format('d/m/Y H:i'),
         ]);
-    
-        return view('frontend.booking.ticket', compact('booking'));
+
+        return view('frontend.booking.ticket', compact('booking', 'ticketPayload'));
     }
+    // public function ticket(Booking $booking)
+    // {
+    //     // nếu cần quan hệ:
+    //     $booking->load([
+    //         'showtime.movie',
+    //         'showtime.room.cinema',
+    //         'seats', // hoặc 'bookingSeats.seat' tùy mày define quan hệ
+    //     ]);
+    
+    //     return view('frontend.booking.ticket', compact('booking'));
+    // }
 
     public function history()
 {

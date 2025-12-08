@@ -3,41 +3,77 @@
 @section('title', 'Vé xem phim #' . $booking->id)
 
 @section('content')
+<div class="max-w-xl mx-auto space-y-4">
+    @if(session('success'))
+        <div class="mb-3 text-sm text-emerald-300 bg-emerald-500/10 border border-emerald-500/40 px-3 py-2 rounded">
+            {{ session('success') }}
+        </div>
+    @endif
 
-<h1 class="text-2xl font-bold mb-4">Vé xem phim #{{ $booking->id }}</h1>
+    <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-xs uppercase tracking-[0.2em] text-slate-500">
+                    Vé xem phim
+                </div>
+                <div class="text-lg font-semibold text-emerald-400">
+                    #TICKET-{{ $booking->id }}
+                </div>
+            </div>
+            <div class="text-right text-xs text-slate-400">
+                Thanh toán lúc<br>
+                {{ optional($booking->paid_at)->format('d/m/Y H:i') }}
+            </div>
+        </div>
 
-<div class="bg-slate-900 p-6 rounded-xl max-w-xl mx-auto">
-
-    <p><strong>Phim:</strong> {{ $booking->showtime->movie->title }}</p>
-    <p><strong>Rạp:</strong> {{ $booking->showtime->room->cinema->name }}</p>
-    <p><strong>Phòng:</strong> {{ $booking->showtime->room->name }}</p>
-    <p><strong>Suất chiếu:</strong> {{ $booking->showtime->start_time->format('d/m/Y H:i') }}</p>
-
-    <p><strong>Ghế:</strong>
-        @if($booking->seats->isNotEmpty())
-            @foreach($booking->seats as $seat)
-                {{ $seat->row }}{{ $seat->number }}@if(!$loop->last), @endif
-            @endforeach
+        <div class="border-t border-slate-800 pt-3 grid grid-cols-2 gap-2 text-xs text-slate-300">
+            <div>
+                <div class="text-slate-500 text-[11px] uppercase tracking-[0.16em]">Phim</div>
+                <div class="font-medium">
+                    {{ $booking->showtime->movie->title ?? '—' }}
+                </div>
+            </div>
+            <div>
+                <div class="text-slate-500 text-[11px] uppercase tracking-[0.16em]">Rạp / Phòng</div>
+                <div class="font-medium">
+                    {{ $booking->showtime->room->cinema->name ?? '' }}
+                    @if(optional($booking->showtime->room)->name)
+                        – {{ $booking->showtime->room->name }}
+                    @endif
+                </div>
+            </div>
+            <div>
+                <div class="text-slate-500 text-[11px] uppercase tracking-[0.16em]">Suất chiếu</div>
+                <div class="font-medium">
+                    {{ optional($booking->showtime->start_time)->format('d/m/Y H:i') }}
+                </div>
+            </div>
+            <div>
+                <div class="text-slate-500 text-[11px] uppercase tracking-[0.16em]">Ghế</div>
+                <div class="font-medium">
+                    @if($booking->seats->isNotEmpty())
+            {{ $booking->seats->map(function ($seat) {
+                return $seat->code ?? ($seat->row . $seat->number);
+            })->join(', ') }}
         @else
-            Không có ghế nào.
+            —
         @endif
-    </p>
+                </div>
+            </div>
+        </div>
 
-    <p><strong>Tổng tiền:</strong> {{ number_format($booking->total_price) }}đ</p>
-
-    <div class="mt-4 flex justify-center">
-        <img src="https://img.vietqr.io/image/970416-000000000000-qr_only.png?amount={{ $booking->total_price }}&addInfo=VE{{ $booking->id }}"
-             class="w-64 h-64 mx-auto rounded">
+        <div class="mt-4 flex flex-col items-center gap-2">
+            <div class="text-xs text-slate-400">
+                QR check-in tại rạp
+            </div>
+            <div class="bg-white p-3 rounded-xl">
+                {!! QrCode::size(200)->generate($ticketPayload) !!}
+            </div>
+            <div class="text-[11px] text-slate-500 text-center">
+                Nhân viên rạp sẽ quét QR này để xác nhận vé hợp lệ.<br>
+                Không chia sẻ QR này cho người khác.
+            </div>
+        </div>
     </div>
-
-    {{-- Nút quay lại --}}
-    <div class="mt-6 text-center">
-        <a href="{{ route('home') }}"
-           class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-200">
-            ⬅ Quay lại trang chủ
-        </a>
-    </div>
-
 </div>
-
 @endsection

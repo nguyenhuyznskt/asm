@@ -157,6 +157,18 @@ Route::middleware('auth')->group(function () {
 
      Route::get('/goi-y-don-gian', [SimpleRecommendController::class, 'index'])
         ->name('movies.simple_recommend');
+
+        
+        Route::get('dat-ve/thanh-toan/{booking}', [BookingController::class, 'payment'])
+        ->name('booking.payment');
+
+    // Xác nhận đã thanh toán (demo)
+    Route::post('dat-ve/thanh-toan/{booking}/confirm', [BookingController::class, 'confirmPayment'])
+        ->name('booking.payment.confirm');
+
+    // Trang vé (hiện QR ticket)
+    Route::get('ve/{booking}', [BookingController::class, 'ticket'])
+        ->name('booking.ticket');
 });
 
 

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Seat;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Booking extends Model
@@ -18,6 +18,11 @@ class Booking extends Model
         'total_price',
         'status',
         'user_id',
+        'payment_status',
+        'paid_at',
+    ];
+    protected $casts = [
+        'paid_at' => 'datetime',
     ];
 
     public function showtime()
@@ -39,5 +44,6 @@ public function user()
 {
     return $this->belongsTo(User::class);
 }
+
 
 }
