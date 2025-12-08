@@ -19,7 +19,8 @@ class Movie extends Model
         'banner_url',
         'release_date',
         'age_rating',
-        'genre_id'
+        'genre_id',
+        'is_featured'
     ];
 
     protected $casts = [

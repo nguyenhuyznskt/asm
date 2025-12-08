@@ -18,7 +18,7 @@ class CheckAdmin
         if (!auth()->check() || auth()->user()->role !== 'admin') {
             // Có thể redirect về trang chủ kèm message
             // return redirect()->route('home')->with('error', 'Bạn không có quyền truy cập');
-            abort(403, 'Bạn không có quyền truy cập khu vực này.');
+            abort(403, 'Bạn không có quyền truy cập.');
         }
 
         return $next($request);

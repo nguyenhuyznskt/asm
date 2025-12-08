@@ -12,8 +12,10 @@ class Seat extends Model
     protected $fillable = [
         'room_id',
         'row',
-        'number',
+        'number',     // hoặc 'seat_number' nếu migration của mày đặt tên như thế
+        // nếu có
         'type',
+        
     ];
 
     public function room()
