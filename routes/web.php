@@ -7,6 +7,31 @@ use App\Http\Controllers\Client\BookingController;
 use App\Http\Controllers\Client\BookingFlowController;
 use App\Http\Controllers\Client\CommentController;
 
+
+
+
+// Route::prefix('admin')
+//     ->name('admin.')
+//     ->middleware(['auth', 'admin']) // bắt buộc đăng nhập + là admin
+//     ->group(function () {
+
+//         Route::get('/', function () {
+//             return view('admin.dashboard');
+//         })->name('dashboard');
+
+//         // CRUD các bảng
+//         Route::resource('categories', CategoryController::class);
+//         Route::resource('products', ProductController::class);
+
+//         // Admin quản lý user (thêm/sửa/xóa, đổi role)
+//         Route::resource('users', UserController::class);
+//     });
+
+
+
+
+
+
 // dashboard của Breeze → redirect về home
 Route::get('/dashboard', function () {
     return redirect()->route('home');
