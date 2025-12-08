@@ -93,11 +93,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     const priceInput = document.getElementById('combo-price');
     const priceFormatted = document.getElementById('combo-price-formatted');
-    const urlInput = document.getElementById('combo-image-url');
+    const fileInput = document.getElementById('combo-image-file');
     const imgPreview = document.getElementById('combo-image-preview');
     const switchEl = document.getElementById('combo-switch');
     const switchCheckbox = document.getElementById('combo-is-active');
 
+    // Format giá
     if (priceInput && priceFormatted) {
         const updatePrice = () => {
             const value = priceInput.value.replace(/\D/g,'');
@@ -111,15 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePrice();
     }
 
-    if (urlInput && imgPreview) {
-        const updateImage = () => {
-            const url = urlInput.value.trim();
-            imgPreview.src = url || 'https://via.placeholder.com/300x300?text=Combo';
-        };
-        urlInput.addEventListener('input', updateImage);
-        updateImage();
+    // Preview ảnh khi chọn file
+    if (fileInput && imgPreview) {
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                imgPreview.src = URL.createObjectURL(file);
+            } else {
+                imgPreview.src = 'https://via.placeholder.com/300x300?text=Combo';
+            }
+        });
     }
 
+    // Switch trạng thái
     if (switchEl && switchCheckbox) {
         const syncSwitch = () => {
             if (switchCheckbox.checked) {
@@ -148,7 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     @endif
 
-    <form action="{{ route('admin.combos.store') }}" method="POST" class="grid md:grid-cols-2 gap-5">
+    <form action="{{ route('admin.combos.store') }}"
+          method="POST"
+          enctype="multipart/form-data"
+          class="grid md:grid-cols-2 gap-5">
         @csrf
 
         <div class="space-y-4">
@@ -181,16 +189,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div class="space-y-4">
             <div>
-                <label class="combo-label">Ảnh combo (URL)</label>
-                <input id="combo-image-url" type="text" name="image_url"
-                       value="{{ old('image_url') }}" class="combo-input"
-                       placeholder="https://...">
+                <label class="combo-label">Ảnh combo (Upload)</label>
+                <input id="combo-image-file" type="file" name="image"
+                       accept="image/*"
+                       class="combo-input">
             </div>
 
             <div class="flex items-center gap-3">
-                <img id="combo-image-preview" src="" alt="Preview" class="combo-img-preview">
+                <img id="combo-image-preview"
+                     src="https://via.placeholder.com/300x300?text=Combo"
+                     alt="Preview"
+                     class="combo-img-preview">
                 <p class="text-[11px] text-slate-400">
-                    Dán URL ảnh combo vào ô bên trên để xem trước.<br>
+                    Chọn ảnh từ máy để xem trước.<br>
                     Nên dùng ảnh vuông 600x600 trở lên.
                 </p>
             </div>

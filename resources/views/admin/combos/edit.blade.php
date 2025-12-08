@@ -68,14 +68,10 @@
         background: linear-gradient(to right, #22c55e, #0ea5e9);
         color: #020617;
     }
-    .combo-btn-primary:hover { filter: brightness(1.08); }
     .combo-btn-outline {
         border: 1px solid #4b5563;
         background: transparent;
         color: #e5e7eb;
-    }
-    .combo-btn-outline:hover {
-        background: rgba(31,41,55,0.9);
     }
     .combo-img-preview {
         width: 140px;
@@ -83,7 +79,6 @@
         border-radius: 16px;
         border: 1px solid #374151;
         object-fit: cover;
-        background: radial-gradient(circle at top, #1f2937, #020617);
     }
 </style>
 @endsection
@@ -93,128 +88,103 @@
 document.addEventListener('DOMContentLoaded', () => {
     const priceInput = document.getElementById('combo-price');
     const priceFormatted = document.getElementById('combo-price-formatted');
-    const urlInput = document.getElementById('combo-image-url');
+    const fileInput = document.getElementById('combo-image-file');
     const imgPreview = document.getElementById('combo-image-preview');
     const switchEl = document.getElementById('combo-switch');
     const switchCheckbox = document.getElementById('combo-is-active');
 
-    if (priceInput && priceFormatted) {
-        const updatePrice = () => {
-            const value = priceInput.value.replace(/\D/g,'');
-            if (!value) {
-                priceFormatted.textContent = '0 đ';
-                return;
-            }
-            priceFormatted.textContent = new Intl.NumberFormat('vi-VN').format(value) + ' đ';
-        };
-        priceInput.addEventListener('input', updatePrice);
-        updatePrice();
-    }
+    // format giá
+    const updatePrice = () => {
+        const value = priceInput.value.replace(/\D/g,'');
+        priceFormatted.textContent = new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+    };
+    updatePrice();
+    priceInput.addEventListener('input', updatePrice);
 
-    if (urlInput && imgPreview) {
-        const updateImage = () => {
-            const url = urlInput.value.trim();
-            imgPreview.src = url || 'https://via.placeholder.com/300x300?text=Combo';
-        };
-        urlInput.addEventListener('input', updateImage);
-        updateImage();
-    }
+    // preview ảnh
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) imgPreview.src = URL.createObjectURL(file);
+    });
 
-    if (switchEl && switchCheckbox) {
-        const syncSwitch = () => {
-            if (switchCheckbox.checked) {
-                switchEl.classList.add('combo-switch-active');
-            } else {
-                switchEl.classList.remove('combo-switch-active');
-            }
-        };
-        switchEl.addEventListener('click', () => {
-            switchCheckbox.checked = !switchCheckbox.checked;
-            syncSwitch();
-        });
+    // switch
+    const syncSwitch = () => {
+        switchEl.classList.toggle('combo-switch-active', switchCheckbox.checked);
+    };
+    switchEl.addEventListener('click', () => {
+        switchCheckbox.checked = !switchCheckbox.checked;
         syncSwitch();
-    }
+    });
+    syncSwitch();
 });
 </script>
 @endsection
 
 @section('content')
 <div class="combo-form-card">
-    @if($errors->any())
-        <div class="mb-4 text-xs text-rose-300">
-            <ul class="list-disc list-inside">
-                @foreach($errors->all() as $err) <li>{{ $err }}</li> @endforeach
-            </ul>
+
+<form action="{{ route('admin.combos.update', $combo) }}"
+      method="POST"
+      enctype="multipart/form-data"
+      class="grid md:grid-cols-2 gap-5">
+    @csrf
+    @method('PUT')
+
+    <div class="space-y-4">
+        <div>
+            <label class="combo-label">Tên combo</label>
+            <input type="text" name="name"
+                   value="{{ old('name', $combo->name) }}"
+                   class="combo-input">
         </div>
-    @endif
 
-    <form action="{{ route('admin.combos.update', $combo) }}" method="POST"
-          class="grid md:grid-cols-2 gap-5">
-        @csrf
-        @method('PUT')
-
-        <div class="space-y-4">
-            <div>
-                <label class="combo-label">Tên combo</label>
-                <input type="text" name="name"
-                       value="{{ old('name', $combo->name) }}" class="combo-input">
-            </div>
-
-            <div>
-                <label class="combo-label">Giá (VNĐ)</label>
-                <input id="combo-price" type="text" name="price"
-                       value="{{ old('price', $combo->price) }}" class="combo-input" inputmode="numeric">
-                <div class="mt-1 text-[11px] text-slate-400">
-                    Hiển thị: <span id="combo-price-formatted" class="text-emerald-300 font-semibold"></span>
-                </div>
-            </div>
-
-            <div>
-                <label class="combo-label">Trạng thái</label>
-                <div class="flex items-center gap-2">
-                    <div id="combo-switch" class="combo-switch">
-                        <span></span>
-                    </div>
-                    <span class="text-xs text-slate-300">Đang bán</span>
-                    <input type="checkbox" id="combo-is-active" name="is_active" value="1"
-                           class="hidden" {{ old('is_active', $combo->is_active) ? 'checked' : '' }}>
-                </div>
+        <div>
+            <label class="combo-label">Giá (VNĐ)</label>
+            <input id="combo-price" type="text" name="price"
+                   value="{{ old('price', $combo->price) }}"
+                   class="combo-input">
+            <div class="mt-1 text-[11px] text-slate-400">
+                Hiển thị: <span id="combo-price-formatted" class="text-emerald-300"></span>
             </div>
         </div>
 
-        <div class="space-y-4">
-            <div>
-                <label class="combo-label">Ảnh combo (URL)</label>
-                <input id="combo-image-url" type="text" name="image_url"
-                       value="{{ old('image_url', $combo->image_url) }}"
-                       class="combo-input" placeholder="https://...">
-            </div>
-
-            <div class="flex items-center gap-3">
-                <img id="combo-image-preview"
-                     src="{{ $combo->image_url ?: 'https://via.placeholder.com/300x300?text=Combo' }}"
-                     alt="Preview" class="combo-img-preview">
-                <p class="text-[11px] text-slate-400">
-                    Dán URL ảnh combo vào ô bên trên để xem trước.<br>
-                    Nên dùng ảnh vuông 600x600 trở lên.
-                </p>
-            </div>
-
-            <div>
-                <label class="combo-label">Mô tả</label>
-                <textarea name="description" rows="4" class="combo-textarea"
-                          placeholder="VD: 1 bắp lớn + 2 nước ngọt...">{{ old('description', $combo->description) }}</textarea>
+        <div>
+            <label class="combo-label">Trạng thái</label>
+            <div class="flex items-center gap-2">
+                <div id="combo-switch" class="combo-switch"><span></span></div>
+                <span class="text-xs text-slate-300">Đang bán</span>
+                <input type="checkbox" id="combo-is-active" name="is_active" value="1"
+                       class="hidden" {{ $combo->is_active ? 'checked' : '' }}>
             </div>
         </div>
+    </div>
 
-        <div class="md:col-span-2 flex justify-end gap-2 pt-2">
-            <a href="{{ route('admin.combos.index') }}" class="combo-btn combo-btn-outline">
-                Hủy
-            </a>
-            <button type="submit" class="combo-btn combo-btn-primary">
-                Cập nhật combo
-            </button>
+    <div class="space-y-4">
+        <div>
+            <label class="combo-label">Ảnh combo (Upload)</label>
+            <input id="combo-image-file" type="file" name="image"
+                   accept="image/*"
+                   class="combo-input">
         </div>
-    </form>
+
+        <div class="flex items-center gap-3">
+            <img id="combo-image-preview"
+                 src="{{ asset('storage/'.$combo->image_url) }}"
+                 class="combo-img-preview">
+        </div>
+
+        <div>
+            <label class="combo-label">Mô tả</label>
+            <textarea name="description" rows="4"
+                      class="combo-textarea">{{ old('description', $combo->description) }}</textarea>
+        </div>
+    </div>
+
+    <div class="md:col-span-2 flex justify-end gap-2 pt-2">
+        <a href="{{ route('admin.combos.index') }}" class="combo-btn combo-btn-outline">Hủy</a>
+        <button type="submit" class="combo-btn combo-btn-primary">Cập nhật combo</button>
+    </div>
+
+</form>
 </div>
 @endsection

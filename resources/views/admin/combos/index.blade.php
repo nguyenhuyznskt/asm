@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <tr data-combo-row data-combo-active="{{ $combo->is_active ? '1' : '0' }}">
                 <td>
                     @if($combo->image_url)
-                        <img src="{{ $combo->image_url }}"
+                        <img src="{{ Storage::url($combo->image_url) }}"
                              class="h-14 w-14 rounded-xl object-cover border border-slate-700">
                     @else
                         <span class="text-[11px] text-slate-500">N/A</span>
