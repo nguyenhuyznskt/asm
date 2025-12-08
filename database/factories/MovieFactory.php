@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Movie;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use App\Models\Genre;
 
 class MovieFactory extends Factory
 {
@@ -29,6 +30,7 @@ class MovieFactory extends Factory
             'release_date' => $this->faker->dateTimeBetween('-6 months', '+6 months'),
             'age_rating' => $this->faker->randomElement(['P', '13+', '16+', '18+']),
             'is_featured'  => $this->faker->boolean(20), // 20% phim là nổi bật
+            'genre_id'     => Genre::inRandomOrder()->first()->id,
         ];
     }
 }

@@ -19,6 +19,7 @@ class Movie extends Model
         'banner_url',
         'release_date',
         'age_rating',
+        'genre_id'
     ];
 
     protected $casts = [
@@ -56,6 +57,10 @@ class Movie extends Model
     public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('is_featured', true);
+    }
+    public function genre()
+    {
+        return $this->belongsTo(Genre::class);
     }
     
 }
