@@ -3,6 +3,9 @@
 @section('title', 'Đăng nhập')
 
 @section('content')
+@php
+    use Illuminate\Support\Facades\Route;
+@endphp
 <div class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg">
     <h1 class="text-2xl font-bold mb-4 text-center">Đăng nhập</h1>
 

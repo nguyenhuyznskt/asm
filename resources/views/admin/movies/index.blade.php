@@ -84,6 +84,7 @@
 @endsection
 
 @section('scripts')
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('movie-search');
@@ -118,6 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
 @endsection
 
 @section('content')
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
 <div class="mb-4 flex flex-wrap items-center gap-3">
     <div class="w-full md:w-72">
         <input id="movie-search" type="text" class="movie-search"

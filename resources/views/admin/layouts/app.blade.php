@@ -1,4 +1,7 @@
 {{-- resources/views/admin/layouts/app.blade.php --}}
+@php
+    use Illuminate\Support\Facades\Route;
+@endphp
 <!DOCTYPE html>
 <html lang="vi">
 <head>
